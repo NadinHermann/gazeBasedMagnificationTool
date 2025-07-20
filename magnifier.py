@@ -61,8 +61,12 @@ class Magnifier(QWidget):
         frame = np.array(screen)
 
         # Calculate the region to magnify
-        magnify_x1, magnify_y1 = max(0, mx - 70), max(0, my - 100)
-        magnify_x2, magnify_y2 = min(frame.shape[1], mx + 60), min(frame.shape[0], my + 40)
+        # Size / scale_factor = X
+        # X / 2
+        # Width of magnification: 400 / 2 = 200
+        # Height of magnification: 300 / 2 = 150
+        magnify_x1, magnify_y1 = max(0, mx - 100), max(0, my - 75)
+        magnify_x2, magnify_y2 = min(frame.shape[1], mx + 100), min(frame.shape[0], my + 75)
 
         # Magnify the region
         magnified_frame = frame[magnify_y1:magnify_y2, magnify_x1:magnify_x2]
