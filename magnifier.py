@@ -28,7 +28,7 @@ class Magnifier(QWidget):
 
         # Für Glättung: Liste der letzten N Gaze-Koordinaten
         self.gaze_history = []
-        self.gaze_history_size = 5  # Je größer, desto glatter, aber träger
+        self.gaze_history_size = 3  # Je größer, desto glatter, aber träger
 
         # Set how often we update the magnifier
         self.timer = QTimer(self)
