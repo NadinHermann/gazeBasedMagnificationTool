@@ -10,8 +10,8 @@ class Magnifier(QWidget):
 
     def __init__(self):
         super().__init__()
-        self.window_width = 400
-        self.window_height = 300
+        self.window_width = 800
+        self.window_height = 600
         self.scale_factor = 2.0  # Vergrößerungsfaktor
         self.setWindowFlags(self.windowFlags() | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint) # Frameless window, stays on top
         self.setAttribute(Qt.WA_TranslucentBackground) # Uncomment for transparent background
@@ -22,11 +22,17 @@ class Magnifier(QWidget):
         self.label = QLabel(self)
         self.label.setFixedSize(self.window_width, self.window_height)
 
-      #  most likely move to main, so i can give coordinates to the magnifier ?
-       # Set how often we update the magnifier
+        # Neue Attribute für Gaze-Koordinaten
+        self.gaze_x = None
+        self.gaze_y = None
+
+        # Für Glättung: Liste der letzten N Gaze-Koordinaten
+        self.gaze_history = []
+        self.gaze_history_size = 5  # Je größer, desto glatter, aber träger
+
+        # Set how often we update the magnifier
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_magnifier)
-        # self.update_magnifier()  # Initial call to display the magnifier immediately
         self.timer.start(30) # in milliseconds
 
         self.create_tray_icon()
@@ -53,9 +59,23 @@ class Magnifier(QWidget):
         self.unhide_hide_action = QAction("Unhide", self)
         self.unhide_hide_action.triggered.connect(self.show)
 
+    def set_coordinates(self, x, y):
+        # Neue Koordinate zur Historie hinzufügen
+        self.gaze_history.append((int(x), int(y)))
+        if len(self.gaze_history) > self.gaze_history_size:
+            self.gaze_history.pop(0)
+        # Mittelwert berechnen
+        xs = [pt[0] for pt in self.gaze_history]
+        ys = [pt[1] for pt in self.gaze_history]
+        self.gaze_x = int(sum(xs) / len(xs))
+        self.gaze_y = int(sum(ys) / len(ys))
+
     def update_magnifier(self):
-        # Get the mouse position
-        mx, my = pyautogui.position()
+        # Verwende Gaze-Koordinaten, falls vorhanden, sonst Mausposition
+        if self.gaze_x is not None and self.gaze_y is not None:
+            mx, my = self.gaze_x, self.gaze_y
+        else:
+            mx, my = pyautogui.position()
 
         # Capture the screen (check if region makes sense)
         screen = pyautogui.screenshot()
@@ -81,4 +101,4 @@ class Magnifier(QWidget):
         self.label.setPixmap(pixmap)
 
         # Move the window to follow the mouse cursor
-        self.move(mx + 10, my + 10)
+        self.move(mx + 1, my + 1)
