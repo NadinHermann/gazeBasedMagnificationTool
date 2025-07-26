@@ -10,8 +10,9 @@ class Magnifier(QWidget):
 
     def __init__(self):
         super().__init__()
-        self.scale_factor = 2.0  # Default scale factor
-
+        self.window_width = 400
+        self.window_height = 300
+        self.scale_factor = 2.0  # Vergrößerungsfaktor
         self.setWindowFlags(self.windowFlags() | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint) # Frameless window, stays on top
         self.setAttribute(Qt.WA_TranslucentBackground) # Uncomment for transparent background
         self.setWindowOpacity(0.8)  # Set window opacity to 80%
@@ -19,7 +20,7 @@ class Magnifier(QWidget):
         self.setWindowIcon(QIcon('img/icon.png')) # check why not working
 
         self.label = QLabel(self)
-        self.label.setFixedSize(400, 300) # check if size is okay??
+        self.label.setFixedSize(self.window_width, self.window_height)
 
       #  most likely move to main, so i can give coordinates to the magnifier ?
        # Set how often we update the magnifier
@@ -28,7 +29,9 @@ class Magnifier(QWidget):
         # self.update_magnifier()  # Initial call to display the magnifier immediately
         self.timer.start(30) # in milliseconds
 
-        # tray menu
+        self.create_tray_icon()
+
+    def create_tray_icon(self):
         self.create_context_menu()
         self.tray_icon = QSystemTrayIcon(self)
         self.tray_icon.setIcon(QIcon("img/icon.png"))  # Set your icon path here (needs to be a valid icon file)
@@ -61,12 +64,10 @@ class Magnifier(QWidget):
         frame = np.array(screen)
 
         # Calculate the region to magnify
-        # Size / scale_factor = X
-        # X / 2
-        # Width of magnification: 400 / 2 = 200
-        # Height of magnification: 300 / 2 = 150
-        magnify_x1, magnify_y1 = max(0, mx - 100), max(0, my - 75)
-        magnify_x2, magnify_y2 = min(frame.shape[1], mx + 100), min(frame.shape[0], my + 75)
+        half_width = int(self.window_width / (2 * self.scale_factor))
+        half_height = int(self.window_height / (2 * self.scale_factor))
+        magnify_x1, magnify_y1 = max(0, mx - half_width), max(0, my - half_height)
+        magnify_x2, magnify_y2 = min(frame.shape[1], mx + half_width), min(frame.shape[0], my + half_height)
 
         # Magnify the region
         magnified_frame = frame[magnify_y1:magnify_y2, magnify_x1:magnify_x2]
@@ -81,4 +82,3 @@ class Magnifier(QWidget):
 
         # Move the window to follow the mouse cursor
         self.move(mx + 10, my + 10)
-
