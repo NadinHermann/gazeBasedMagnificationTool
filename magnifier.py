@@ -12,7 +12,7 @@ class Magnifier(QWidget):
         super().__init__()
         self.window_width = 800
         self.window_height = 600
-        self.scale_factor = 2.0  # Vergrößerungsfaktor
+        self.scale_factor = 2.0
         self.setWindowFlags(self.windowFlags() | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint) # Frameless window, stays on top
         self.setAttribute(Qt.WA_TranslucentBackground) # Uncomment for transparent background
         self.setWindowOpacity(0.8)  # Set window opacity to 80%
@@ -22,13 +22,12 @@ class Magnifier(QWidget):
         self.label = QLabel(self)
         self.label.setFixedSize(self.window_width, self.window_height)
 
-        # Neue Attribute für Gaze-Koordinaten
         self.gaze_x = None
         self.gaze_y = None
 
-        # Für Glättung: Liste der letzten N Gaze-Koordinaten
+        # List for moving average of gaze coordinates
         self.gaze_history = []
-        self.gaze_history_size = 3  # Je größer, desto glatter, aber träger
+        self.gaze_history_size = 3  # Bigger size for smoother movement, but slower response
 
         # Set how often we update the magnifier
         self.timer = QTimer(self)
@@ -60,18 +59,18 @@ class Magnifier(QWidget):
         self.unhide_hide_action.triggered.connect(self.show)
 
     def set_coordinates(self, x, y):
-        # Neue Koordinate zur Historie hinzufügen
+        # Add the new gaze coordinates to the history
         self.gaze_history.append((int(x), int(y)))
         if len(self.gaze_history) > self.gaze_history_size:
             self.gaze_history.pop(0)
-        # Mittelwert berechnen
+        # Calculate the average gaze coordinates
         xs = [pt[0] for pt in self.gaze_history]
         ys = [pt[1] for pt in self.gaze_history]
         self.gaze_x = int(sum(xs) / len(xs))
         self.gaze_y = int(sum(ys) / len(ys))
 
     def update_magnifier(self):
-        # Verwende Gaze-Koordinaten, falls vorhanden, sonst Mausposition
+        # Use the gaze coordinates if available, otherwise use the mouse position
         if self.gaze_x is not None and self.gaze_y is not None:
             mx, my = self.gaze_x, self.gaze_y
         else:

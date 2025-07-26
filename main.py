@@ -7,11 +7,7 @@ from magnifier import Magnifier
 
 if __name__ == '__main__':
     print('Start program...')
-    #
     app = QApplication(sys.argv)
-
-
-
 
     # Create estimator and calibrate
     estimator = GazeEstimator()
@@ -48,6 +44,6 @@ if __name__ == '__main__':
     from PyQt5.QtCore import QTimer
     gaze_timer = QTimer()
     gaze_timer.timeout.connect(update_gaze)
-    gaze_timer.start(30)  # alle 30 ms
+    gaze_timer.start(30)  # 30 ms
 
     sys.exit(app.exec_())
