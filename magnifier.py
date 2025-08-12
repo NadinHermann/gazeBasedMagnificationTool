@@ -17,7 +17,6 @@ class Magnifier(QWidget):
         self.setAttribute(Qt.WA_TranslucentBackground) # Uncomment for transparent background
         self.setWindowOpacity(0.8)  # Set window opacity to 80%
         self.setWindowTitle("Magnifier")
-        self.setWindowIcon(QIcon('img/icon.png')) # check why not working
 
         self.label = QLabel(self)
         self.label.setFixedSize(self.window_width, self.window_height)
