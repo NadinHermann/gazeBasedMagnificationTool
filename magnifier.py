@@ -1,8 +1,10 @@
 from PyQt5.QtCore import pyqtSignal, Qt, QTimer
 from PyQt5.QtGui import QIcon, QImage, QPixmap
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QMenu, QAction, QSystemTrayIcon
+import mss
 import pyautogui
 import cv2
+import platform
 import numpy as np
 
 class Magnifier(QWidget):
@@ -13,8 +15,13 @@ class Magnifier(QWidget):
         self.window_width = 800
         self.window_height = 600
         self.scale_factor = 2.0
-        self.setWindowFlags(self.windowFlags() | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint) # Frameless window, stays on top
-        self.setAttribute(Qt.WA_TranslucentBackground) # Uncomment for transparent background
+        self.setWindowFlags(
+            self.windowFlags()
+            | Qt.Tool
+            | Qt.FramelessWindowHint
+            | Qt.WindowStaysOnTopHint
+        )
+        self.setAttribute(Qt.WA_TranslucentBackground)
         self.setWindowOpacity(0.8)  # Set window opacity to 80%
         self.setWindowTitle("Magnifier")
 
@@ -27,6 +34,9 @@ class Magnifier(QWidget):
         # List for moving average of gaze coordinates
         self.gaze_history = []
         self.gaze_history_size = 3  # Bigger size for smoother movement, but slower response
+
+        # MSS screen capturer
+        self.sct = mss.mss()
 
         # Set how often we update the magnifier
         self.timer = QTimer(self)
@@ -68,6 +78,16 @@ class Magnifier(QWidget):
         self.gaze_x = int(sum(xs) / len(xs))
         self.gaze_y = int(sum(ys) / len(ys))
 
+    def grab_screen(self):
+        # Grab from primary monitor
+        monitor = self.sct.monitors[1]
+        shot = self.sct.grab(monitor)
+
+        # Convert to NumPy array in RGB
+        img = np.array(shot)
+        img = img[:, :, :3]  # Remove alpha channel if present
+        return img
+
     def update_magnifier(self):
         # Use the gaze coordinates if available, otherwise use the mouse position
         if self.gaze_x is not None and self.gaze_y is not None:
@@ -76,10 +96,18 @@ class Magnifier(QWidget):
             mx, my = pyautogui.position()
 
         # Capture the screen (check if region makes sense)
-        screen = pyautogui.screenshot()
+        # self.hide()
+        # self.setWindowOpacity(0.0)
+        # screen = pyautogui.screenshot()
+        # self.setWindowOpacity(0.8)
+        # self.show()
 
         # Convert the screenshot to a NumPy array
-        frame = np.array(screen)
+        # frame = np.array(screen)
+
+        # frame = self.grab_screen()
+
+        frame = self.grab_screen_excluding_self()
 
         # Calculate the region to magnify
         half_width = int(self.window_width / (2 * self.scale_factor))
@@ -99,4 +127,47 @@ class Magnifier(QWidget):
         self.label.setPixmap(pixmap)
 
         # Move the window to follow the mouse cursor
-        self.move(mx + 1, my + 1)
+        # self.move(mx + 1, my + 1)
+        self.move(mx - self.window_width // 2, my - self.window_height // 2)
+
+    def exclude_from_capture(self):
+        os_name = platform.system()
+        print(os_name)
+        if platform.system() == "Windows":
+            old_pos = self.pos()
+            self.move(-2000, -2000)  # far off-screen
+            QApplication.processEvents()
+            img = self.grab_screen()
+            self.move(old_pos)
+            QApplication.processEvents()
+            return img
+        else:
+            return self.grab_screen()
+        # if os_name == "Windows":
+        #     import ctypes
+        #     hwnd = int(self.winId())
+        #     GWL_EXSTYLE = -20
+        #     WS_EX_LAYERED = 0x00080000
+        #     WS_EX_TRANSPARENT = 0x00000020
+        #     user32 = ctypes.windll.user32
+        #     GetWindowLong = user32.GetWindowLongW
+        #     SetWindowLong = user32.SetWindowLongW
+        #     style = GetWindowLong(hwnd, GWL_EXSTYLE)
+        #     style |= WS_EX_LAYERED | WS_EX_TRANSPARENT
+        #     SetWindowLong(hwnd, GWL_EXSTYLE, style)
+
+        # elif os_name == "Darwin":  # macOS
+        #     from AppKit import NSApp
+        #     from Quartz import kCGWindowSharingNone
+        #     window = NSApp.windows()[-1]
+        #     window.setSharingType_(kCGWindowSharingNone)
+        #
+        # elif os_name == "Linux":  # X11 only
+        #     from PyQt5.QtX11Extras import QX11Info
+        #     import Xlib.display
+        #     display = Xlib.display.Display()
+        #     window = display.create_resource_object('window', int(self.winId()))
+        #     NET_WM_WINDOW_TYPE = display.intern_atom('_NET_WM_WINDOW_TYPE')
+        #     NET_WM_WINDOW_TYPE_DOCK = display.intern_atom('_NET_WM_WINDOW_TYPE_DOCK')
+        #     window.change_property(NET_WM_WINDOW_TYPE, Xlib.Xatom.ATOM, 32, [NET_WM_WINDOW_TYPE_DOCK])
+        #     display.sync()
