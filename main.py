@@ -1,6 +1,7 @@
 import cv2
 from eyetrax import GazeEstimator, run_9_point_calibration
 from PyQt5.QtWidgets import QApplication
+from PyQt5.QtCore import QTimer
 import sys
 
 from magnifier import Magnifier
@@ -41,7 +42,6 @@ if __name__ == '__main__':
             print("Blink")
 
     # Timer für Gaze-Update
-    from PyQt5.QtCore import QTimer
     gaze_timer = QTimer()
     gaze_timer.timeout.connect(update_gaze)
     gaze_timer.start(30)  # 30 ms
