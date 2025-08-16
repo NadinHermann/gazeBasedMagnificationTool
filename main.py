@@ -1,19 +1,15 @@
-# This is a sample Python script.
+import sys
 
-# Press Umschalt+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-from eyetrax import GazeEstimator, run_9_point_calibration
 import cv2
+from PyQt5.QtCore import QTimer
+from PyQt5.QtWidgets import QApplication
+from eyetrax import GazeEstimator, run_9_point_calibration
 
+from magnifier import Magnifier
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Strg+F8 to toggle the breakpoint.
-
-
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print_hi('PyCharm')
+    print('Start program...')
+    app = QApplication(sys.argv)
 
     # Create estimator and calibrate
     estimator = GazeEstimator()
@@ -27,17 +23,28 @@ if __name__ == '__main__':
     estimator.load_model("gaze_model.pkl")
 
     cap = cv2.VideoCapture(0)
+    magnifier = Magnifier()
+    magnifier.show()
 
-    while True:
-        # Extract features from frame
+    magnifier.exit_signal.connect(app.quit)
+
+    def update_gaze():
+        print("Updating gaze...")
         ret, frame = cap.read()
+        if not ret:
+            return
         features, blink = estimator.extract_features(frame)
 
-        # Predict screen coordinates
         if features is not None and not blink:
             x, y = estimator.predict([features])[0]
+            magnifier.set_coordinates(x, y)
             print(f"Gaze: ({x:.0f}, {y:.0f})")
         else:
             print("Blink")
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    # Timer für Gaze-Update
+    gaze_timer = QTimer()
+    gaze_timer.timeout.connect(update_gaze)
+    gaze_timer.start(30)  # 30 ms
+
+    sys.exit(app.exec_())
