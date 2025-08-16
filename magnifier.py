@@ -47,11 +47,10 @@ class Magnifier(QWidget):
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_magnifier)
-        self.timer.start(30)  # ~33 FPS
+        self.timer.start(30)
 
         self.create_tray_icon()
 
-    # ---------- Tray ----------
     def create_tray_icon(self):
         self.create_context_menu()
         self.tray_icon = QSystemTrayIcon(self)
@@ -73,7 +72,6 @@ class Magnifier(QWidget):
         self.unhide_hide_action = QAction("Unhide", self)
         self.unhide_hide_action.triggered.connect(self.show)
 
-    # ---------- Gaze smoothing ----------
     def set_coordinates(self, x, y):
         if self.gaze_x is not None and self.gaze_y is not None:
             # Dead zone: ignore tiny movements
@@ -103,7 +101,6 @@ class Magnifier(QWidget):
 
         self.gaze_x, self.gaze_y = smoothed_x, smoothed_y
 
-    # ---------- Capture helpers ----------
     def _primary_monitor_bounds(self):
         mon = self.sct.monitors[1]
         return mon["left"], mon["top"], mon["width"], mon["height"]
@@ -126,15 +123,12 @@ class Magnifier(QWidget):
         shot = self.sct.grab(region)
         return np.array(shot)[:, :, :3]
 
-    # ---------- Main loop ----------
     def update_magnifier(self):
-        # Use smoothed gaze if available, else mouse
         if self.gaze_x is not None and self.gaze_y is not None:
             mx, my = self.gaze_x, self.gaze_y
         else:
             mx, my = pyautogui.position()
 
-        # Move after updating
         target_x = int(mx - self.window_width // 2)
         target_y = int(my - self.window_height // 2)
         if self.last_window_pos:
