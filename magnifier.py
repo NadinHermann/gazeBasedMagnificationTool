@@ -1,11 +1,10 @@
+import cv2
+import mss
+import numpy as np
+import pyautogui
 from PyQt5.QtCore import pyqtSignal, Qt, QTimer
 from PyQt5.QtGui import QIcon, QImage, QPixmap
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QMenu, QAction, QSystemTrayIcon
-import mss
-import pyautogui
-import cv2
-import numpy as np
-
 
 class Magnifier(QWidget):
     exit_signal = pyqtSignal()
@@ -31,6 +30,8 @@ class Magnifier(QWidget):
         self.label = QLabel(self)
         self.label.setFixedSize(self.window_width, self.window_height)
 
+        self.create_tray_icon()
+
         # Smoothed gaze data
         self.gaze_x = None
         self.gaze_y = None
@@ -38,9 +39,8 @@ class Magnifier(QWidget):
         self.gaze_history_size = 12  # more smoothing
 
         # Jitter control
-        self.dead_zone = 20       # px, ignore small movements
-        self.max_speed = 50      # px/frame, clamp movement
-
+        self.dead_zone = 20  # px, ignore small movements
+        self.max_speed = 50  # px/frame, clamp movement
         self.window_move_dead_zone = 100
 
         self.sct = mss.mss()
@@ -48,8 +48,6 @@ class Magnifier(QWidget):
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_magnifier)
         self.timer.start(30)
-
-        self.create_tray_icon()
 
     def create_tray_icon(self):
         self.create_context_menu()

@@ -1,8 +1,9 @@
-import cv2
-from eyetrax import GazeEstimator, run_9_point_calibration
-from PyQt5.QtWidgets import QApplication
-from PyQt5.QtCore import QTimer
 import sys
+
+import cv2
+from PyQt5.QtCore import QTimer
+from PyQt5.QtWidgets import QApplication
+from eyetrax import GazeEstimator, run_9_point_calibration
 
 from magnifier import Magnifier
 
