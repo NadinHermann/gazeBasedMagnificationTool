@@ -144,7 +144,7 @@ class Magnifier(QWidget):
                     magnified = cv2.resize(src, (self.window_width, self.window_height), interpolation=cv2.INTER_LINEAR)
 
                     h, w, _ = magnified.shape
-                    qImg = QImage(magnified.data, w, h, 3 * w, QImage.Format_RGB888)
+                    qImg = QImage(magnified.data, w, h, 3 * w, QImage.Format_BGR888)
                     self.label.setPixmap(QPixmap.fromImage(qImg))
                     self.move(target_x, target_y)
                     self.last_window_pos = (target_x, target_y)
