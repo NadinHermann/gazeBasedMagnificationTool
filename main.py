@@ -1,4 +1,5 @@
 import sys
+import time
 
 import cv2
 from PyQt5.QtCore import QTimer
@@ -28,19 +29,38 @@ if __name__ == '__main__':
 
     magnifier.exit_signal.connect(app.quit)
 
+    # Blink tracking configuration
+    blink_start = None
+    scaled_for_blink = False
+    BLINK_THRESHOLD_SECONDS = 1
+
     def update_gaze():
         print("Updating gaze...")
+        global blink_start, scaled_for_blink
         ret, frame = cap.read()
         if not ret:
             return
         features, blink = estimator.extract_features(frame)
 
+        # Gaze detected and not blinking
         if features is not None and not blink:
             x, y = estimator.predict([features])[0]
             magnifier.set_coordinates(x, y)
             print(f"Gaze: ({x:.0f}, {y:.0f})")
+            blink_start = None
+            scaled_for_blink = False
         else:
-            print("Blink")
+            now = time.time()
+            print(now)
+            if blink_start is None:
+                blink_start = now
+            else:
+                print("Blink ongoing...", now - blink_start)
+                if now - blink_start > BLINK_THRESHOLD_SECONDS and scaled_for_blink is False:
+                    print("Long blink detected, doubling magnification.")
+                    magnifier.double_scale()
+                    scaled_for_blink = True
+
 
     # Timer für Gaze-Update
     gaze_timer = QTimer()

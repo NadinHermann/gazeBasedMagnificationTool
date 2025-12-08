@@ -150,3 +150,7 @@ class Magnifier(QWidget):
                     self.last_window_pos = (target_x, target_y)
         else:
             self.last_window_pos = (target_x, target_y)
+
+    def double_scale(self):
+            self.scale_factor = self.scale_factor * 2.0
+
