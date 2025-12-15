@@ -63,12 +63,20 @@ class Magnifier(QWidget):
         self.exit_action.triggered.connect(QApplication.quit)
         self.tray_menu.addAction(self.exit_action)
 
-        self.hide_action = QAction("Hide (Esc)", self)
+        self.hide_action = QAction("Hide", self)
         self.hide_action.triggered.connect(self.hide)
         self.tray_menu.addAction(self.hide_action)
 
         self.unhide_hide_action = QAction("Unhide", self)
         self.unhide_hide_action.triggered.connect(self.show)
+
+        self.increase_scale_action = QAction("Increase Magnification", self)
+        self.increase_scale_action.triggered.connect(self.double_scale)
+        self.tray_menu.addAction(self.increase_scale_action)
+
+        self.decrease_scale_action = QAction("Decrease Magnification", self)
+        self.decrease_scale_action.triggered.connect(self.decrease_scale)
+        self.tray_menu.addAction(self.decrease_scale_action)
 
     def set_coordinates(self, x, y):
         if self.gaze_x is not None and self.gaze_y is not None:
