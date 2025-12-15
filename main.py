@@ -2,7 +2,7 @@ import sys
 import time
 
 import cv2
-from PyQt5.QtCore import QTimer
+from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtWidgets import QApplication
 from eyetrax import GazeEstimator, run_9_point_calibration
 
@@ -57,8 +57,14 @@ if __name__ == '__main__':
             else:
                 print("Blink ongoing...", now - blink_start)
                 if now - blink_start > BLINK_THRESHOLD_SECONDS and scaled_for_blink is False:
-                    print("Long blink detected, doubling magnification.")
-                    magnifier.double_scale()
+                    mods = QApplication.keyboardModifiers()
+                    shift_down = bool(mods & Qt.ShiftModifier)
+                    if shift_down:
+                        print("Long blink detected with Shift, halving magnification.")
+                        magnifier.decrease_scale()
+                    else:
+                        print("Long blink detected, doubling magnification.")
+                        magnifier.double_scale()
                     scaled_for_blink = True
 
 
