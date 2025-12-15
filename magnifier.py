@@ -163,5 +163,5 @@ class Magnifier(QWidget):
             self.scale_factor = self.scale_factor * 2.0
 
     def decrease_scale(self):
-            self.scale_factor = max(1.0, self.scale_factor / 2.0)
+            self.scale_factor = max(2.0, self.scale_factor / 2.0)
 
