@@ -61,10 +61,10 @@ if __name__ == '__main__':
                     shift_down = bool(mods & Qt.ShiftModifier)
                     if shift_down:
                         print("Long blink detected with Shift, halving magnification.")
-                        magnifier.decrease_scale()
+                        magnifier.decrease_magnification()
                     else:
                         print("Long blink detected, doubling magnification.")
-                        magnifier.double_scale()
+                        magnifier.double_magnification()
                     scaled_for_blink = True
 
 
