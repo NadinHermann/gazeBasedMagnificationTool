@@ -15,6 +15,8 @@ class Magnifier(QWidget):
         self.window_width = 800
         self.window_height = 600
         self.scale_factor = 2.0
+        self.max_scale = 10.0
+        self.min_scale = 2.0
 
         # Window settings
         self.setWindowFlags(
@@ -63,12 +65,20 @@ class Magnifier(QWidget):
         self.exit_action.triggered.connect(QApplication.quit)
         self.tray_menu.addAction(self.exit_action)
 
-        self.hide_action = QAction("Hide (Esc)", self)
+        self.hide_action = QAction("Hide", self)
         self.hide_action.triggered.connect(self.hide)
         self.tray_menu.addAction(self.hide_action)
 
         self.unhide_hide_action = QAction("Unhide", self)
         self.unhide_hide_action.triggered.connect(self.show)
+
+        self.increase_magnification_action = QAction("Double Magnification", self)
+        self.increase_magnification_action.triggered.connect(self.double_magnification)
+        self.tray_menu.addAction(self.increase_magnification_action)
+
+        self.decrease_magnification_action = QAction("Decrease Magnification", self)
+        self.decrease_magnification_action.triggered.connect(self.decrease_magnification)
+        self.tray_menu.addAction(self.decrease_magnification_action)
 
     def set_coordinates(self, x, y):
         if self.gaze_x is not None and self.gaze_y is not None:
@@ -150,3 +160,10 @@ class Magnifier(QWidget):
                     self.last_window_pos = (target_x, target_y)
         else:
             self.last_window_pos = (target_x, target_y)
+
+    def double_magnification(self):
+        self.scale_factor = max(self.max_scale, self.scale_factor * 2.0)
+
+    def decrease_magnification(self):
+        self.scale_factor = max(self.min_scale, self.scale_factor / 2.0)
+
