@@ -15,6 +15,8 @@ class Magnifier(QWidget):
         self.window_width = 800
         self.window_height = 600
         self.scale_factor = 2.0
+        self.max_scale = 10.0
+        self.min_scale = 2.0
 
         # Window settings
         self.setWindowFlags(
@@ -70,7 +72,7 @@ class Magnifier(QWidget):
         self.unhide_hide_action = QAction("Unhide", self)
         self.unhide_hide_action.triggered.connect(self.show)
 
-        self.increase_scale_action = QAction("Increase Magnification", self)
+        self.increase_scale_action = QAction("Double Magnification", self)
         self.increase_scale_action.triggered.connect(self.double_scale)
         self.tray_menu.addAction(self.increase_scale_action)
 
@@ -160,8 +162,8 @@ class Magnifier(QWidget):
             self.last_window_pos = (target_x, target_y)
 
     def double_scale(self):
-            self.scale_factor = self.scale_factor * 2.0
+        self.scale_factor = max(self.max_scale, self.scale_factor * 2.0)
 
     def decrease_scale(self):
-            self.scale_factor = max(2.0, self.scale_factor / 2.0)
+        self.scale_factor = max(self.min_scale, self.scale_factor / 2.0)
 

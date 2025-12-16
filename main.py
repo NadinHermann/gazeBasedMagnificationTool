@@ -56,7 +56,7 @@ if __name__ == '__main__':
                 blink_start = now
             else:
                 print("Blink ongoing...", now - blink_start)
-                if now - blink_start > BLINK_THRESHOLD_SECONDS and scaled_for_blink is False:
+                if now - blink_start > BLINK_THRESHOLD_SECONDS and not scaled_for_blink:
                     mods = QApplication.keyboardModifiers()
                     shift_down = bool(mods & Qt.ShiftModifier)
                     if shift_down:
