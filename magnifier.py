@@ -27,7 +27,7 @@ class Magnifier(QWidget):
         self.window_width = 800
         self.window_height = 600
         self.scale_factor = 2.0
-        self.max_scale = 10.0
+        self.max_scale = 12.0
         self.min_scale = 2.0
 
         # Window settings
@@ -189,7 +189,7 @@ class Magnifier(QWidget):
         else:
             self.last_window_pos = (target_x, target_y)
     def double_magnification(self):
-        self.scale_factor = max(self.max_scale, self.scale_factor * 2.0)
+        self.scale_factor = min(self.max_scale, self.scale_factor * 2.0)
 
     def decrease_magnification(self):
         self.scale_factor = max(self.min_scale, self.scale_factor / 2.0)
