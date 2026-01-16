@@ -1,3 +1,5 @@
+import sys
+import os
 import cv2
 import mss
 import numpy as np
@@ -5,6 +7,16 @@ import pyautogui
 from PyQt5.QtCore import pyqtSignal, Qt, QTimer
 from PyQt5.QtGui import QIcon, QImage, QPixmap
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QMenu, QAction, QSystemTrayIcon
+
+def resource_path(relative_path: str) -> str:
+    """Return absolute path to resource, works for dev and PyInstaller onefile.
+    Use like: resource_path('img/icon.png')
+    """
+    if getattr(sys, 'frozen', False):
+        base = getattr(sys, '_MEIPASS', os.path.abspath('.'))
+    else:
+        base = os.path.abspath(os.path.dirname(__file__))
+    return os.path.join(base, relative_path)
 
 class Magnifier(QWidget):
     exit_signal = pyqtSignal()
@@ -15,7 +27,7 @@ class Magnifier(QWidget):
         self.window_width = 800
         self.window_height = 600
         self.scale_factor = 2.0
-        self.max_scale = 10.0
+        self.max_scale = 12.0
         self.min_scale = 2.0
 
         # Window settings
@@ -54,7 +66,8 @@ class Magnifier(QWidget):
     def create_tray_icon(self):
         self.create_context_menu()
         self.tray_icon = QSystemTrayIcon(self)
-        self.tray_icon.setIcon(QIcon("img/icon.png"))
+        print("get icon path:", resource_path("img/icon.png"))
+        self.tray_icon.setIcon(QIcon(resource_path("img/icon.png")))
         self.tray_icon.setContextMenu(self.tray_menu)
         self.tray_icon.show()
 
@@ -75,10 +88,25 @@ class Magnifier(QWidget):
         self.increase_magnification_action = QAction("Double Magnification", self)
         self.increase_magnification_action.triggered.connect(self.double_magnification)
         self.tray_menu.addAction(self.increase_magnification_action)
+        # tooltip helps users find the tray icon
+        try:
+            self.tray_icon.setToolTip('Magnifier')
+        except Exception:
+            pass
 
         self.decrease_magnification_action = QAction("Decrease Magnification", self)
         self.decrease_magnification_action.triggered.connect(self.decrease_magnification)
         self.tray_menu.addAction(self.decrease_magnification_action)
+        # Diagnostic / robustness: ensure system tray is available and briefly show a message
+        if not QSystemTrayIcon.isSystemTrayAvailable():
+            print('Warning: system tray not available on this system')
+        else:
+            try:
+                # show a brief message to provoke the tray icon to appear on some Windows setups
+                self.tray_icon.showMessage('Magnifier', 'Application started', QSystemTrayIcon.Information, 1000)
+            except Exception:
+                pass
+
 
     def set_coordinates(self, x, y):
         if self.gaze_x is not None and self.gaze_y is not None:
@@ -160,10 +188,8 @@ class Magnifier(QWidget):
                     self.last_window_pos = (target_x, target_y)
         else:
             self.last_window_pos = (target_x, target_y)
-
     def double_magnification(self):
-        self.scale_factor = max(self.max_scale, self.scale_factor * 2.0)
+        self.scale_factor = min(self.max_scale, self.scale_factor * 2.0)
 
     def decrease_magnification(self):
         self.scale_factor = max(self.min_scale, self.scale_factor / 2.0)
-
