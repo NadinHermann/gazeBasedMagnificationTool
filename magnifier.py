@@ -4,6 +4,7 @@ import cv2
 import mss
 import numpy as np
 import pyautogui
+import time
 from PyQt5.QtCore import pyqtSignal, Qt, QTimer
 from PyQt5.QtGui import QIcon, QImage, QPixmap
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QMenu, QAction, QSystemTrayIcon
@@ -59,6 +60,14 @@ class Magnifier(QWidget):
 
         self.sct = mss.mss()
 
+        # Dwell feature state
+        self.dwell_enabled = False
+        self.dwell_center = None  # (x, y) - dynamically tracks current gaze position
+        self.dwell_radius = 100  # pixels - smaller radius for detecting stillness
+        self.dwell_hold_time = 0.5  # seconds required to dwell
+        self.dwell_start_time = None
+        self.dwell_active = False
+
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_magnifier)
         self.timer.start(30)
@@ -102,6 +111,13 @@ class Magnifier(QWidget):
         self.decrease_magnification_action = QAction("Decrease Magnification", self)
         self.decrease_magnification_action.triggered.connect(self.decrease_magnification)
         self.tray_menu.addAction(self.decrease_magnification_action)
+
+        # Dwell option: when enabled, the window stays hidden until the user dwells
+        # (stays still) on any point. The action is checkable.
+        self.dwell_action = QAction("Enable Dwell", self)
+        self.dwell_action.setCheckable(True)
+        self.dwell_action.triggered.connect(self.toggle_dwell)
+        self.tray_menu.addAction(self.dwell_action)
         # Diagnostic / robustness: ensure system tray is available and briefly show a message
         if not QSystemTrayIcon.isSystemTrayAvailable():
             print('Warning: system tray not available on this system')
@@ -112,6 +128,30 @@ class Magnifier(QWidget):
             except Exception:
                 pass
 
+
+    def toggle_dwell(self, checked: bool):
+        """Enable or disable dwell mode. When enabled, the magnifier only shows when
+        the user dwells (stays still) on any point for the configured time."""
+        if checked:
+            self.dwell_enabled = True
+            self.dwell_center = None  # Will be set dynamically in update_magnifier
+            self.dwell_start_time = None
+            self.dwell_active = False
+            try:
+                self.hide()
+                self.hide_action.setText("Unhide")
+            except Exception:
+                pass
+            self.dwell_action.setText("Disable Dwell")
+        else:
+            # turning dwell off: show window again and reset dwell state
+            self.dwell_enabled = False
+            self.dwell_center = None
+            self.dwell_start_time = None
+            self.dwell_active = False
+            self.show()
+            self.dwell_action.setText("Enable Dwell")
+            self.hide_action.setText("Hide")
 
     def set_coordinates(self, x, y):
         if self.gaze_x is not None and self.gaze_y is not None:
@@ -170,6 +210,60 @@ class Magnifier(QWidget):
         else:
             mx, my = pyautogui.position()
 
+        # Dwell logic: when enabled, the magnifier should remain hidden until the user
+        # dwells (stays still) at any point for the configured time.
+        if self.dwell_enabled:
+            # If no dwell center is set yet, initialize it to current position
+            if self.dwell_center is None:
+                # Start tracking at current gaze position
+                self.dwell_center = (mx, my)
+                self.dwell_start_time = time.time()
+                print(f"Initial dwell center set to: {self.dwell_center}")
+            else:
+                dx = mx - self.dwell_center[0]
+                dy = my - self.dwell_center[1]
+                dist = (dx * dx + dy * dy) ** 0.5
+
+                print(f"Distance to dwell center: {dist:.1f} (threshold: {self.dwell_radius})")
+                if dist <= self.dwell_radius:
+                    # gaze is staying still within the radius
+                    if self.dwell_start_time is None:
+                        self.dwell_start_time = time.time()
+                    elif (time.time() - self.dwell_start_time) >= self.dwell_hold_time:
+                        print("Dwell satisfied - showing magnifier")
+                        # dwell satisfied -> show the window if not already visible
+                        if not self.dwell_active:
+                            self.dwell_active = True
+                            # Update magnifier contents and position before showing
+                            target_x = int(mx - self.window_width // 2)
+                            target_y = int(my - self.window_height // 2)
+                            try:
+                                src = self.grab_region(mx, my)
+                                magnified = cv2.resize(src, (self.window_width, self.window_height), interpolation=cv2.INTER_LINEAR)
+                                h, w, _ = magnified.shape
+                                qImg = QImage(magnified.data, w, h, 3 * w, QImage.Format_BGR888)
+                                self.label.setPixmap(QPixmap.fromImage(qImg))
+                                self.move(target_x, target_y)
+                                self.last_window_pos = (target_x, target_y)
+                            except Exception as e:
+                                print(f"Error updating magnifier: {e}")
+                            # Now show the window
+                            self.show()
+                            self.raise_()
+                            self.activateWindow()
+                else:
+                    # gaze moved too far: reset dwell center to new position
+                    print(f"Gaze moved, resetting dwell center from {self.dwell_center} to ({mx}, {my})")
+                    self.dwell_center = (mx, my)
+                    self.dwell_start_time = time.time()
+                    if self.dwell_active:
+                        self.hide()
+                        self.dwell_active = False
+
+            # If dwell is enabled but not yet active, do not update magnifier contents
+            if not self.dwell_active:
+                return
+
         target_x = int(mx - self.window_width // 2)
         target_y = int(my - self.window_height // 2)
         if self.last_window_pos:
@@ -193,8 +287,10 @@ class Magnifier(QWidget):
                     self.last_window_pos = (target_x, target_y)
         else:
             self.last_window_pos = (target_x, target_y)
+
     def double_magnification(self):
         self.scale_factor = min(self.max_scale, self.scale_factor * 2.0)
 
     def decrease_magnification(self):
         self.scale_factor = max(self.min_scale, self.scale_factor / 2.0)
+
