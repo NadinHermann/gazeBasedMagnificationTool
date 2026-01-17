@@ -71,6 +71,14 @@ class Magnifier(QWidget):
         self.tray_icon.setContextMenu(self.tray_menu)
         self.tray_icon.show()
 
+    def toggle_visibility(self):
+        if self.isVisible():
+            self.hide()
+            self.hide_action.setText("Unhide")
+        else:
+            self.show()
+            self.hide_action.setText("Hide")
+
     def create_context_menu(self):
         self.tray_menu = QMenu(self)
 
@@ -79,11 +87,8 @@ class Magnifier(QWidget):
         self.tray_menu.addAction(self.exit_action)
 
         self.hide_action = QAction("Hide", self)
-        self.hide_action.triggered.connect(self.hide)
+        self.hide_action.triggered.connect(self.toggle_visibility)
         self.tray_menu.addAction(self.hide_action)
-
-        self.unhide_hide_action = QAction("Unhide", self)
-        self.unhide_hide_action.triggered.connect(self.show)
 
         self.increase_magnification_action = QAction("Double Magnification", self)
         self.increase_magnification_action.triggered.connect(self.double_magnification)
