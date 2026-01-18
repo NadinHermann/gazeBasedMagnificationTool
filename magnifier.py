@@ -7,7 +7,7 @@ import pyautogui
 import time
 from PyQt5.QtCore import pyqtSignal, Qt, QTimer
 from PyQt5.QtGui import QIcon, QImage, QPixmap
-from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QMenu, QAction, QSystemTrayIcon
+from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QMenu, QAction, QSystemTrayIcon, QInputDialog
 
 def resource_path(relative_path: str) -> str:
     """Return absolute path to resource, works for dev and PyInstaller onefile.
@@ -112,6 +112,28 @@ class Magnifier(QWidget):
         self.decrease_magnification_action.triggered.connect(self.decrease_magnification)
         self.tray_menu.addAction(self.decrease_magnification_action)
 
+        # Separator for parameter adjustment section
+        self.tray_menu.addSeparator()
+
+        # User-adjustable parameters
+        self.set_width_action = QAction("Set Window Width...", self)
+        self.set_width_action.triggered.connect(self.set_window_width)
+        self.tray_menu.addAction(self.set_width_action)
+
+        self.set_height_action = QAction("Set Window Height...", self)
+        self.set_height_action.triggered.connect(self.set_window_height)
+        self.tray_menu.addAction(self.set_height_action)
+
+        self.set_dwell_radius_action = QAction("Set Dwell Radius...", self)
+        self.set_dwell_radius_action.triggered.connect(self.set_dwell_radius)
+        self.tray_menu.addAction(self.set_dwell_radius_action)
+
+        self.set_dwell_time_action = QAction("Set Dwell Hold Time...", self)
+        self.set_dwell_time_action.triggered.connect(self.set_dwell_hold_time)
+        self.tray_menu.addAction(self.set_dwell_time_action)
+
+        self.tray_menu.addSeparator()
+
         # Dwell option: when enabled, the window stays hidden until the user dwells
         # (stays still) on any point. The action is checkable.
         self.dwell_action = QAction("Enable Dwell", self)
@@ -152,6 +174,55 @@ class Magnifier(QWidget):
             self.show()
             self.dwell_action.setText("Enable Dwell")
             self.hide_action.setText("Hide")
+
+    # User-adjustable parameter handlers
+    def set_window_width(self):
+        value, ok = QInputDialog.getInt(self, 'Window Width',
+                                        'Enter window width (px):',
+                                        self.window_width, 100, 4000)
+        if ok:
+            self.window_width = int(value)
+            self.label.setFixedSize(self.window_width, self.window_height)
+            # Reposition window if it's visible
+            if self.isVisible() and self.last_window_pos:
+                mx = self.gaze_x if self.gaze_x is not None else pyautogui.position()[0]
+                my = self.gaze_y if self.gaze_y is not None else pyautogui.position()[1]
+                target_x = int(mx - self.window_width // 2)
+                target_y = int(my - self.window_height // 2)
+                self.move(target_x, target_y)
+                self.last_window_pos = (target_x, target_y)
+
+    def set_window_height(self):
+        value, ok = QInputDialog.getInt(self, 'Window Height',
+                                        'Enter window height (px):',
+                                        self.window_height, 100, 4000)
+        if ok:
+            self.window_height = int(value)
+            self.label.setFixedSize(self.window_width, self.window_height)
+            # Reposition window if it's visible
+            if self.isVisible() and self.last_window_pos:
+                mx = self.gaze_x if self.gaze_x is not None else pyautogui.position()[0]
+                my = self.gaze_y if self.gaze_y is not None else pyautogui.position()[1]
+                target_x = int(mx - self.window_width // 2)
+                target_y = int(my - self.window_height // 2)
+                self.move(target_x, target_y)
+                self.last_window_pos = (target_x, target_y)
+
+    def set_dwell_radius(self):
+        value, ok = QInputDialog.getInt(self, 'Dwell Radius',
+                                        'Enter dwell radius (px):',
+                                        self.dwell_radius, 5, 2000)
+        if ok:
+            self.dwell_radius = int(value)
+            print(f"Dwell radius updated to: {self.dwell_radius}px")
+
+    def set_dwell_hold_time(self):
+        value, ok = QInputDialog.getDouble(self, 'Dwell Hold Time',
+                                           'Seconds required to dwell:',
+                                           self.dwell_hold_time, 0.1, 60.0, decimals=2)
+        if ok:
+            self.dwell_hold_time = float(value)
+            print(f"Dwell hold time updated to: {self.dwell_hold_time}s")
 
     def set_coordinates(self, x, y):
         if self.gaze_x is not None and self.gaze_y is not None:
@@ -288,4 +359,3 @@ class Magnifier(QWidget):
 
     def decrease_magnification(self):
         self.scale_factor = max(self.min_scale, self.scale_factor / 2.0)
-
