@@ -25,8 +25,14 @@ class Magnifier(QWidget):
     def __init__(self):
         super().__init__()
         self.last_window_pos = None
-        self.window_width = 800
-        self.window_height = 600
+        # Default values
+        self.default_window_width = 800
+        self.default_window_height = 600
+        self.default_dwell_radius = 100
+        self.default_dwell_hold_time = 0.5
+
+        self.window_width = self.default_window_width
+        self.window_height = self.default_window_height
         self.scale_factor = 2.0
         self.max_scale = 12.0
         self.min_scale = 2.0
@@ -41,6 +47,7 @@ class Magnifier(QWidget):
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setWindowOpacity(0.9)
         self.setWindowTitle("Magnifier")
+        self.setFixedSize(self.window_width, self.window_height)
 
         self.label = QLabel(self)
         self.label.setFixedSize(self.window_width, self.window_height)
@@ -63,8 +70,8 @@ class Magnifier(QWidget):
         # Dwell feature state
         self.dwell_enabled = False
         self.dwell_center = None  # (x, y) - dynamically tracks current gaze position
-        self.dwell_radius = 100  # pixels - smaller radius for detecting stillness
-        self.dwell_hold_time = 0.5  # seconds required to dwell
+        self.dwell_radius = self.default_dwell_radius  # pixels - smaller radius for detecting stillness
+        self.dwell_hold_time = self.default_dwell_hold_time  # seconds required to dwell
         self.dwell_start_time = None
         self.dwell_active = False
 
@@ -132,6 +139,11 @@ class Magnifier(QWidget):
         self.set_dwell_time_action.triggered.connect(self.set_dwell_hold_time)
         self.tray_menu.addAction(self.set_dwell_time_action)
 
+        # Reset to defaults option
+        self.reset_defaults_action = QAction("Reset to Defaults", self)
+        self.reset_defaults_action.triggered.connect(self.reset_to_defaults)
+        self.tray_menu.addAction(self.reset_defaults_action)
+
         self.tray_menu.addSeparator()
 
         # Dwell option: when enabled, the window stays hidden until the user dwells
@@ -182,15 +194,7 @@ class Magnifier(QWidget):
                                         self.window_width, 100, 4000)
         if ok:
             self.window_width = int(value)
-            self.label.setFixedSize(self.window_width, self.window_height)
-            # Reposition window if it's visible
-            if self.isVisible() and self.last_window_pos:
-                mx = self.gaze_x if self.gaze_x is not None else pyautogui.position()[0]
-                my = self.gaze_y if self.gaze_y is not None else pyautogui.position()[1]
-                target_x = int(mx - self.window_width // 2)
-                target_y = int(my - self.window_height // 2)
-                self.move(target_x, target_y)
-                self.last_window_pos = (target_x, target_y)
+            self.update_window_size_after_change()
 
     def set_window_height(self):
         value, ok = QInputDialog.getInt(self, 'Window Height',
@@ -198,15 +202,19 @@ class Magnifier(QWidget):
                                         self.window_height, 100, 4000)
         if ok:
             self.window_height = int(value)
-            self.label.setFixedSize(self.window_width, self.window_height)
-            # Reposition window if it's visible
-            if self.isVisible() and self.last_window_pos:
-                mx = self.gaze_x if self.gaze_x is not None else pyautogui.position()[0]
-                my = self.gaze_y if self.gaze_y is not None else pyautogui.position()[1]
-                target_x = int(mx - self.window_width // 2)
-                target_y = int(my - self.window_height // 2)
-                self.move(target_x, target_y)
-                self.last_window_pos = (target_x, target_y)
+            self.update_window_size_after_change()
+
+    def update_window_size_after_change(self):
+        self.setFixedSize(self.window_width, self.window_height)
+        self.label.setFixedSize(self.window_width, self.window_height)
+        # Reposition window if it's visible
+        if self.isVisible() and self.last_window_pos:
+            mx = self.gaze_x if self.gaze_x is not None else pyautogui.position()[0]
+            my = self.gaze_y if self.gaze_y is not None else pyautogui.position()[1]
+            target_x = int(mx - self.window_width // 2)
+            target_y = int(my - self.window_height // 2)
+            self.move(target_x, target_y)
+            self.last_window_pos = (target_x, target_y)
 
     def set_dwell_radius(self):
         value, ok = QInputDialog.getInt(self, 'Dwell Radius',
@@ -222,7 +230,19 @@ class Magnifier(QWidget):
                                            self.dwell_hold_time, 0.1, 60.0, decimals=2)
         if ok:
             self.dwell_hold_time = float(value)
-            print(f"Dwell hold time updated to: {self.dwell_hold_time}s")
+
+    def reset_to_defaults(self):
+        """Reset all adjustable parameters to their default values."""
+        self.window_width = self.default_window_width
+        self.window_height = self.default_window_height
+        self.dwell_radius = self.default_dwell_radius
+        self.dwell_hold_time = self.default_dwell_hold_time
+
+        # Update the label size
+        self.update_window_size_after_change()
+
+        print(f"Reset to defaults: Width={self.window_width}px, Height={self.window_height}px, "
+              f"Dwell Radius={self.dwell_radius}px, Dwell Time={self.dwell_hold_time}s")
 
     def set_coordinates(self, x, y):
         if self.gaze_x is not None and self.gaze_y is not None:
