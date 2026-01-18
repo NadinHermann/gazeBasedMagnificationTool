@@ -226,29 +226,27 @@ class Magnifier(QWidget):
 
                 if dist <= self.dwell_radius:
                     # gaze is staying still within the radius
-                    if self.dwell_start_time is None:
-                        self.dwell_start_time = time.time()
-                    elif (time.time() - self.dwell_start_time) >= self.dwell_hold_time:
-                        # dwell satisfied -> show the window if not already visible
-                        if not self.dwell_active:
-                            self.dwell_active = True
-                            # Update magnifier contents and position before showing
-                            target_x = int(mx - self.window_width // 2)
-                            target_y = int(my - self.window_height // 2)
-                            try:
-                                src = self.grab_region(mx, my)
-                                magnified = cv2.resize(src, (self.window_width, self.window_height), interpolation=cv2.INTER_LINEAR)
-                                h, w, _ = magnified.shape
-                                qImg = QImage(magnified.data, w, h, 3 * w, QImage.Format_BGR888)
-                                self.label.setPixmap(QPixmap.fromImage(qImg))
-                                self.move(target_x, target_y)
-                                self.last_window_pos = (target_x, target_y)
-                            except Exception as e:
-                                print(f"Error updating magnifier: {e}")
-                            # Now show the window
-                            self.show()
-                            self.raise_()
-                            self.activateWindow()
+                  if (time.time() - self.dwell_start_time) >= self.dwell_hold_time:
+                    # dwell satisfied -> show the window if not already visible
+                    if not self.dwell_active:
+                        self.dwell_active = True
+                        # Update magnifier contents and position before showing
+                        target_x = int(mx - self.window_width // 2)
+                        target_y = int(my - self.window_height // 2)
+                        try:
+                            src = self.grab_region(mx, my)
+                            magnified = cv2.resize(src, (self.window_width, self.window_height), interpolation=cv2.INTER_LINEAR)
+                            h, w, _ = magnified.shape
+                            qImg = QImage(magnified.data, w, h, 3 * w, QImage.Format_BGR888)
+                            self.label.setPixmap(QPixmap.fromImage(qImg))
+                            self.move(target_x, target_y)
+                            self.last_window_pos = (target_x, target_y)
+                        except Exception as e:
+                            print(f"Error updating magnifier: {e}")
+                        # Now show the window
+                        self.show()
+                        self.raise_()
+                        self.activateWindow()
                 else:
                     # gaze moved too far: reset dwell center to new position
                     self.dwell_center = (mx, my)
