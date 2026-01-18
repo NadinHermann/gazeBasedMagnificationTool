@@ -224,13 +224,11 @@ class Magnifier(QWidget):
                 dy = my - self.dwell_center[1]
                 dist = (dx * dx + dy * dy) ** 0.5
 
-                print(f"Distance to dwell center: {dist:.1f} (threshold: {self.dwell_radius})")
                 if dist <= self.dwell_radius:
                     # gaze is staying still within the radius
                     if self.dwell_start_time is None:
                         self.dwell_start_time = time.time()
                     elif (time.time() - self.dwell_start_time) >= self.dwell_hold_time:
-                        print("Dwell satisfied - showing magnifier")
                         # dwell satisfied -> show the window if not already visible
                         if not self.dwell_active:
                             self.dwell_active = True
@@ -253,7 +251,6 @@ class Magnifier(QWidget):
                             self.activateWindow()
                 else:
                     # gaze moved too far: reset dwell center to new position
-                    print(f"Gaze moved, resetting dwell center from {self.dwell_center} to ({mx}, {my})")
                     self.dwell_center = (mx, my)
                     self.dwell_start_time = time.time()
                     if self.dwell_active:
