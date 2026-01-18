@@ -222,7 +222,6 @@ class Magnifier(QWidget):
                                         self.dwell_radius, 5, 2000)
         if ok:
             self.dwell_radius = int(value)
-            print(f"Dwell radius updated to: {self.dwell_radius}px")
 
     def set_dwell_hold_time(self):
         value, ok = QInputDialog.getDouble(self, 'Dwell Hold Time',
