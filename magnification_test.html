@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magnification Tool - Eye Test</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #ea66d4 0%, #a24b77 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 36px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 16px;
+            font-family: Arial, sans-serif;
+        }
+
+        .eye-chart {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .line {
+            text-align: center;
+            letter-spacing: 0.1em;
+            font-weight: bold;
+            color: #222;
+            transition: color 0.3s;
+        }
+
+        .line:hover {
+            color: #667eea;
+        }
+
+        .size-1 { font-size: 72px; }
+        .size-2 { font-size: 60px; }
+        .size-3 { font-size: 48px; }
+        .size-4 { font-size: 40px; }
+        .size-5 { font-size: 32px; }
+        .size-6 { font-size: 26px; }
+        .size-7 { font-size: 22px; }
+        .size-8 { font-size: 18px; }
+        .size-9 { font-size: 14px; }
+        .size-10 { font-size: 12px; }
+        .size-11 { font-size: 10px; }
+        .size-12 { font-size: 8px; }
+        .size-13 { font-size: 6px; }
+
+        .label {
+            display: inline-block;
+            font-size: 12px;
+            color: #999;
+            margin-left: 15px;
+            font-family: Arial, sans-serif;
+        }
+
+        .instructions {
+            background: #f0f4ff;
+            border-left: 4px solid #5468c2;
+            padding: 20px;
+            margin-top: 40px;
+            border-radius: 8px;
+        }
+
+        .instructions h2 {
+            margin-top: 0;
+            color: #5468c2;
+            font-size: 20px;
+        }
+
+        .instructions ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .instructions li {
+            margin: 8px 0;
+            color: #555;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+        }
+
+        .sample-text {
+            margin-top: 40px;
+            padding: 30px;
+            background: #fff9e6;
+            border-radius: 10px;
+            border: 2px dashed #a56200;
+        }
+
+        .sample-text h3 {
+            color: #a56200;
+            margin-top: 0;
+        }
+
+        .sample-text p {
+            font-family: Georgia, serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .tiny-text {
+            font-size: 10px;
+            margin-top: 15px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+        }
+
+        .micro-text {
+            font-size: 6px;
+            margin-top: 10px;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>👁️ Magnification Tool Test Page 👁️</h1>
+        <p class="subtitle">Use your gaze-based magnifier to read the text below</p>
+
+        <div class="eye-chart">
+            <div class="line size-1">E <span class="label">72px</span></div>
+            <div class="line size-2">F P <span class="label">60px</span></div>
+            <div class="line size-3">T O Z <span class="label">48px</span></div>
+            <div class="line size-4">L P E D <span class="label">40px</span></div>
+            <div class="line size-5">P E C F D <span class="label">32px</span></div>
+            <div class="line size-6">E D F C Z P <span class="label">26px</span></div>
+            <div class="line size-7">F E L O P Z D <span class="label">22px</span></div>
+            <div class="line size-8">D E F P O T E C <span class="label">18px</span></div>
+            <div class="line size-9">L E F O D P C T <span class="label">14px</span></div>
+            <div class="line size-10">F D P L T C E O <span class="label">12px</span></div>
+            <div class="line size-11">P E Z O L C F T D <span class="label">10px</span></div>
+            <div class="line size-12">L E F O D P C T E O <span class="label">8px</span></div>
+            <div class="line size-13">F D P L T C E O Z P E <span class="label">6px</span></div>
+        </div>
+
+        <div class="instructions">
+            <h2>📋 How to Test Your Magnifier</h2>
+            <ul>
+                <li><strong>Dwell Mode (Default):</strong> Look at any text and hold your gaze still for 0.5 seconds to activate the magnifier</li>
+                <li><strong>Always On Mode:</strong> Right-click the system tray icon and select "Enable Always On" for continuous magnification</li>
+                <li><strong>Adjust Magnification:</strong> Use "Double Magnification" or "Decrease Magnification" from the tray menu</li>
+                <li><strong>Read Small Text:</strong> Try reading the smallest lines below to test different magnification levels</li>
+                <li><strong>Customize:</strong> Adjust window size, dwell radius, and hold time from the tray menu</li>
+            </ul>
+        </div>
+
+        <div class="sample-text">
+            <h3>Sample Reading Text - Standard Size</h3>
+            <p>
+                This paragraph contains normal-sized text that should be easily readable without magnification.
+                The quick brown fox jumps over the lazy dog. This sentence contains all letters of the alphabet.
+            </p>
+
+            <div class="tiny-text">
+                <strong>Tiny Text (10px):</strong> This text is quite small and may require magnification to read comfortably.
+                Use your gaze-based magnifier to enlarge this section. The magnification tool should help you
+                read this text without straining your eyes. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+            </div>
+
+            <div class="micro-text">
+                <strong>Micro Text (6px):</strong> This is extremely small text designed to test maximum magnification.
+                If you can read this easily, your magnifier is working excellently! Try adjusting the magnification
+                level to find what works best for you. The gaze-based control should make it easy to focus on
+                exactly what you want to read. Etiam vel augue vitae lorem facilisis hendrerit sed vel magna.
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
