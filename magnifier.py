@@ -68,7 +68,7 @@ class Magnifier(QWidget):
         self.sct = mss.mss()
 
         # Dwell feature state
-        self.dwell_enabled = False
+        self.dwell_enabled = True  # Dwell is now the default mode
         self.dwell_center = None  # (x, y) - dynamically tracks current gaze position
         self.dwell_radius = self.default_dwell_radius  # pixels - smaller radius for detecting stillness
         self.dwell_hold_time = self.default_dwell_hold_time  # seconds required to dwell
@@ -146,9 +146,9 @@ class Magnifier(QWidget):
 
         self.tray_menu.addSeparator()
 
-        # Dwell option: when enabled, the window stays hidden until the user dwells
-        # (stays still) on any point. The action is checkable.
-        self.dwell_action = QAction("Enable Dwell", self)
+        # Dwell option: Dwell mode is now the default, so the action allows disabling it
+        # to switch to always-on mode. The action is checkable and starts unchecked.
+        self.dwell_action = QAction("Enable Always On", self)
         self.dwell_action.setCheckable(True)
         self.dwell_action.triggered.connect(self.toggle_dwell)
         self.tray_menu.addAction(self.dwell_action)
@@ -164,11 +164,20 @@ class Magnifier(QWidget):
 
 
     def toggle_dwell(self, checked: bool):
-        """Enable or disable dwell mode. When enabled, the magnifier only shows when
-        the user dwells (stays still) on any point for the configured time."""
+        """Toggle between dwell mode (default) and always-on mode.
+        When unchecked (default), magnifier only shows when user dwells on a point.
+        When checked, magnifier is always visible and follows gaze continuously."""
         if checked:
+            self.dwell_enabled = False
+            self.dwell_center = None
+            self.dwell_start_time = None
+            self.dwell_active = False
+            self.show()
+            self.dwell_action.setText("Disable Always On")
+            self.hide_action.setText("Hide")
+        else:
             self.dwell_enabled = True
-            self.dwell_center = None  # Will be set dynamically in update_magnifier
+            self.dwell_center = None
             self.dwell_start_time = None
             self.dwell_active = False
             try:
@@ -176,16 +185,7 @@ class Magnifier(QWidget):
                 self.hide_action.setText("Unhide")
             except Exception:
                 pass
-            self.dwell_action.setText("Disable Dwell")
-        else:
-            # turning dwell off: show window again and reset dwell state
-            self.dwell_enabled = False
-            self.dwell_center = None
-            self.dwell_start_time = None
-            self.dwell_active = False
-            self.show()
-            self.dwell_action.setText("Enable Dwell")
-            self.hide_action.setText("Hide")
+            self.dwell_action.setText("Enable Always On")
 
     # User-adjustable parameter handlers
     def set_window_width(self):
