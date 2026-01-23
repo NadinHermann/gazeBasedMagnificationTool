@@ -147,7 +147,7 @@ class Magnifier(QWidget):
         self.tray_menu.addSeparator()
 
         # Dwell option: Dwell mode is now the default, so the action allows disabling it
-        # to switch to always-on mode. The action is checkable and starts checked.
+        # to switch to always-on mode. The action is checkable and starts unchecked.
         self.dwell_action = QAction("Enable Always On", self)
         self.dwell_action.setCheckable(True)
         self.dwell_action.triggered.connect(self.toggle_dwell)
@@ -168,7 +168,6 @@ class Magnifier(QWidget):
         When unchecked (default), magnifier only shows when user dwells on a point.
         When checked, magnifier is always visible and follows gaze continuously."""
         if checked:
-            # Checkbox is checked = Always On mode is ENABLED
             self.dwell_enabled = False
             self.dwell_center = None
             self.dwell_start_time = None
@@ -177,9 +176,8 @@ class Magnifier(QWidget):
             self.dwell_action.setText("Disable Always On")
             self.hide_action.setText("Hide")
         else:
-            # Checkbox is unchecked = Dwell mode is active (default)
             self.dwell_enabled = True
-            self.dwell_center = None  # Will be set dynamically in update_magnifier
+            self.dwell_center = None
             self.dwell_start_time = None
             self.dwell_active = False
             try:
