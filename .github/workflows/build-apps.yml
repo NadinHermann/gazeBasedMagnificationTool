@@ -42,6 +42,13 @@ jobs:
         if: runner.os == 'Windows'
 
       # 5. Run script
+      # Run PyInstaller (Linux / macOS)
+      - name: Build with PyInstaller (Unix)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          venv/bin/python -m PyInstaller myapp.spec
+      
       - name: Build with PyInstaller (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
@@ -54,3 +61,4 @@ jobs:
         with:
           name: myapp-${{ runner.os }}
           path: dist/
+          if-no-files-found: error
