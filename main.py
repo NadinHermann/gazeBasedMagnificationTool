@@ -58,7 +58,7 @@ if __name__ == '__main__':
         if features is not None and not blink:
             x, y = estimator.predict([features])[0]
             magnifier.set_coordinates(x, y)
-            # print(f"Gaze: ({x:.0f}, {y:.0f})")
+            print(f"Gaze: ({x:.0f}, {y:.0f})")
             blink_start = None
             scaled_for_blink = False
         else:
@@ -72,10 +72,10 @@ if __name__ == '__main__':
                     mods = QApplication.keyboardModifiers()
                     shift_down = bool(mods & Qt.ShiftModifier)
                     if shift_down:
-                        # print("Long blink detected with Shift, halving magnification.")
+                        print("Long blink detected with Shift, halving magnification.")
                         magnifier.decrease_magnification()
                     else:
-                        # print("Long blink detected, doubling magnification.")
+                        print("Long blink detected, doubling magnification.")
                         magnifier.double_magnification()
                     scaled_for_blink = True
 
