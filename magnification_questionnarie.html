@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Gaze-Based Magnification Questionnaire</title>
+
+<style>
+    body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        background-color: #f5f5f5;
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
+        max-width: 800px;
+        margin: 40px auto;
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    h2 {
+        margin-top: 40px;
+    }
+
+    p {
+        margin: 10px 0;
+    }
+
+    .scale-info {
+        background: #eef4ff;
+        border-left: 4px solid #4a90e2;
+        padding: 10px 15px;
+        margin: 20px 0;
+        font-size: 14px;
+    }
+
+    .question {
+        margin: 25px 0;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .scale {
+        display: flex;
+        justify-content: space-between;
+        max-width: 400px;
+        margin-top: 10px;
+    }
+
+    .scale label {
+        text-align: center;
+        font-size: 13px;
+    }
+
+    textarea {
+        width: 100%;
+        height: 80px;
+        margin-top: 10px;
+        padding: 8px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-family: inherit;
+    }
+
+    .button-container {
+        text-align: center;
+        margin-top: 30px;
+    }
+
+    button {
+        padding: 12px 25px;
+        font-size: 16px;
+        background-color: #4a90e2;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #357abd;
+    }
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Gaze-Based Magnification Tool</h1>
+<p><strong>User Questionnaire</strong></p>
+
+<p>Please evaluate the following statements based on your experience with the system.</p>
+
+<div class="scale-info">
+    <strong>Rating Scale:</strong><br>
+    1 = Strongly Disagree (Very Poor)<br>
+    2 = Disagree (Poor)<br>
+    3 = Neutral<br>
+    4 = Agree (Good)<br>
+    5 = Strongly Agree (Very Good)
+</div>
+
+<form>
+
+<div class="question">
+    <p>It was always clear to me where the magnification was applied on the screen.</p>
+    <div class="scale">
+        <label>1<br><input type="radio" name="q1"></label>
+        <label>2<br><input type="radio" name="q1"></label>
+        <label>3<br><input type="radio" name="q1"></label>
+        <label>4<br><input type="radio" name="q1"></label>
+        <label>5<br><input type="radio" name="q1"></label>
+    </div>
+</div>
+
+<div class="question">
+    <p>The system avoided unintended actions (e.g., accidental activation).</p>
+    <div class="scale">
+        <label>1<br><input type="radio" name="q2"></label>
+        <label>2<br><input type="radio" name="q2"></label>
+        <label>3<br><input type="radio" name="q2"></label>
+        <label>4<br><input type="radio" name="q2"></label>
+        <label>5<br><input type="radio" name="q2"></label>
+    </div>
+</div>
+
+<div class="question">
+    <p>I felt in control of the magnifier.</p>
+    <div class="scale">
+        <label>1<br><input type="radio" name="q3"></label>
+        <label>2<br><input type="radio" name="q3"></label>
+        <label>3<br><input type="radio" name="q3"></label>
+        <label>4<br><input type="radio" name="q3"></label>
+        <label>5<br><input type="radio" name="q3"></label>
+    </div>
+</div>
+
+<div class="question">
+    <p>The interaction felt efficient.</p>
+    <div class="scale">
+        <label>1<br><input type="radio" name="q4"></label>
+        <label>2<br><input type="radio" name="q4"></label>
+        <label>3<br><input type="radio" name="q4"></label>
+        <label>4<br><input type="radio" name="q4"></label>
+        <label>5<br><input type="radio" name="q4"></label>
+    </div>
+</div>
+
+<div class="question">
+    <p>The magnifier appeared exactly at the location I intended to focus on.</p>
+    <div class="scale">
+        <label>1<br><input type="radio" name="q5"></label>
+        <label>2<br><input type="radio" name="q5"></label>
+        <label>3<br><input type="radio" name="q5"></label>
+        <label>4<br><input type="radio" name="q5"></label>
+        <label>5<br><input type="radio" name="q5"></label>
+    </div>
+</div>
+
+<div class="question">
+    <p>The movement of the magnifier felt stable.</p>
+    <div class="scale">
+        <label>1<br><input type="radio" name="q6"></label>
+        <label>2<br><input type="radio" name="q6"></label>
+        <label>3<br><input type="radio" name="q6"></label>
+        <label>4<br><input type="radio" name="q6"></label>
+        <label>5<br><input type="radio" name="q6"></label>
+    </div>
+</div>
+
+<div class="question">
+    <p>Using the system felt comfortable.</p>
+    <div class="scale">
+        <label>1<br><input type="radio" name="q7"></label>
+        <label>2<br><input type="radio" name="q7"></label>
+        <label>3<br><input type="radio" name="q7"></label>
+        <label>4<br><input type="radio" name="q7"></label>
+        <label>5<br><input type="radio" name="q7"></label>
+    </div>
+</div>
+
+<div class="question">
+    <p>I did not experience eye strain or fatigue.</p>
+    <div class="scale">
+        <label>1<br><input type="radio" name="q8"></label>
+        <label>2<br><input type="radio" name="q8"></label>
+        <label>3<br><input type="radio" name="q8"></label>
+        <label>4<br><input type="radio" name="q8"></label>
+        <label>5<br><input type="radio" name="q8"></label>
+    </div>
+</div>
+
+<div class="question">
+    <p>Overall, I am satisfied with the system.</p>
+    <div class="scale">
+        <label>1<br><input type="radio" name="q9"></label>
+        <label>2<br><input type="radio" name="q9"></label>
+        <label>3<br><input type="radio" name="q9"></label>
+        <label>4<br><input type="radio" name="q9"></label>
+        <label>5<br><input type="radio" name="q9"></label>
+    </div>
+</div>
+
+<h2>Open Questions</h2>
+
+<div class="question">
+    <p>What did you like most?</p>
+    <textarea></textarea>
+</div>
+
+<div class="question">
+    <p>What problems did you encounter?</p>
+    <textarea></textarea>
+</div>
+
+<div class="question">
+    <p>What would you improve?</p>
+    <textarea></textarea>
+</div>
+
+</form>
+
+<div class="button-container">
+    <button onclick="window.print()">Save as PDF</button>
+</div>
+
+</div>
+
+</body>
+</html>
