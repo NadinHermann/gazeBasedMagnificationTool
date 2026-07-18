@@ -32,7 +32,7 @@ except Exception:
     pass
 
 # Include your local model file (relative to the spec file location) and the whole img folder
-datas += [ ('gaze_model.pkl', '.'), ('img', 'img') ]
+datas += [ ('img', 'img') ]
 datas += [ ('img/icon.png', '.') ]
 
 # Hidden imports - collect submodules to avoid missing imports inside packages
