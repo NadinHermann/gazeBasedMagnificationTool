@@ -5,3 +5,4 @@ PyQt5==5.15.11
 pyautogui==0.9.54
 mss==10.0.0
 pyinstaller==6.18.0
+mediapipe==0.10.14

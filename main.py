@@ -9,6 +9,10 @@ from eyetrax import GazeEstimator, run_9_point_calibration
 
 from magnifier import Magnifier
 
+import warnings
+
+warnings.filterwarnings("ignore", category=UserWarning)
+
 def resource_path(filename):
     """Return path to resource, works for dev and when bundled by PyInstaller."""
     if getattr(sys, 'frozen', False):
@@ -41,44 +45,63 @@ if __name__ == '__main__':
 
     magnifier.exit_signal.connect(app.quit)
 
-    # Blink tracking configuration
     blink_start = None
     scaled_for_blink = False
-    BLINK_THRESHOLD_SECONDS = 5
+    eyes_open_since = None
+    BLINK_THRESHOLD_SECONDS = 2
+    GRACE_PERIOD = 0.75  # Eyes must stay open for 0.75s to reset the timer
+
 
     def update_gaze():
-        # print("Updating gaze...")
-        global blink_start, scaled_for_blink
+        global blink_start, scaled_for_blink, eyes_open_since
+
         ret, frame = cap.read()
         if not ret:
             return
-        features, blink = estimator.extract_features(frame)
 
-        # Gaze detected and not blinking
+        features, blink = estimator.extract_features(frame)
+        now = time.monotonic()
+
+        # 1. Eyes are OPEN and detected
         if features is not None and not blink:
             x, y = estimator.predict([features])[0]
             magnifier.set_coordinates(x, y)
-            print(f"Gaze: ({x:.0f}, {y:.0f})")
-            blink_start = None
-            scaled_for_blink = False
+
+            # If this is the first frame eyes are open, mark the starting time
+            if eyes_open_since is None:
+                eyes_open_since = now
+
+            # Check if eyes have been open *long enough* to count as a real opening (grace period)
+            # print(f"Eyes open. Time since first open: {now - eyes_open_since:.2f} seconds.")
+            if blink_start is not None and (now - eyes_open_since >= GRACE_PERIOD):
+                # print("Eyes open continuously for grace period, resetting blink timer.")
+                blink_start = None
+                scaled_for_blink = False
+
+        # 2. Eyes are CLOSED or tracking flickered / lost
         else:
-            now = time.time()
-            print(now)
+            eyes_open_since = None
+
+            # Start or continue the blink timer
             if blink_start is None:
                 blink_start = now
+                # print("Blink timer started at:", blink_start)
             else:
-                # print("Blink ongoing...", now - blink_start)
-                if now - blink_start > BLINK_THRESHOLD_SECONDS and not scaled_for_blink:
-                    mods = QApplication.keyboardModifiers()
+                elapsed = now - blink_start
+                # print(f"Blink timer running. Elapsed time: {elapsed:.2f} seconds.")
+                if elapsed >= BLINK_THRESHOLD_SECONDS and not scaled_for_blink:
+                    print("Long blink detected, processing magnification change.")
+                    mods = QApplication.queryKeyboardModifiers()
                     shift_down = bool(mods & Qt.ShiftModifier)
+                    print(shift_down)
                     if shift_down:
                         print("Long blink detected with Shift, halving magnification.")
                         magnifier.decrease_magnification()
                     else:
                         print("Long blink detected, doubling magnification.")
                         magnifier.double_magnification()
-                    scaled_for_blink = True
 
+                    scaled_for_blink = True
 
     # Timer für Gaze-Update
     gaze_timer = QTimer()
